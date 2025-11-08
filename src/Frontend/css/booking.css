@@ -1,0 +1,81 @@
+:root {
+  --dark-blue: #003b5c;
+  --medium-blue: #005a8c;
+  --light-blue: #008cbe;
+  --soft-blue: #d5e3e8;
+  --white: #ffffff;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--soft-blue);
+  color: var(--dark-blue);
+}
+/* Navbar */
+.navbar {
+  background-color: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  color: var(--light-blue) !important;
+}
+
+.appointment-container {
+  max-width: 900px;
+  margin: 60px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.doctor-section {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.doctor-section img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #fff;
+}
+
+.form-section {
+  padding: 30px;
+}
+
+.btn-book {
+  background-color: var(--light-blue) !important;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: var(--white) !important;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn-book:hover {
+  background-color: var(--medium-blue) !important;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.empty-state h5 {
+  color: #6b7280;
+}
+
+.empty-state a {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: 600;
+}

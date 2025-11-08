@@ -1,0 +1,98 @@
+/* Lấy màu sắc từ file index.css để đồng bộ */
+:root {
+  --dark-blue: #003b5c;
+  --medium-blue: #005a8c;
+  --light-blue: #008cbe;
+  --soft-blue: #f0f4f7; /* Nền nhạt hơn cho admin */
+  --white: #ffffff;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--soft-blue);
+  color: var(--dark-blue);
+  /* Thêm padding top để nội dung không bị Navbar che */
+  padding-top: 60px; 
+}
+
+/* 1. Navbar */
+.bg-dark-blue {
+  background-color: var(--dark-blue) !important;
+}
+
+/* 2. Layout chính */
+.admin-layout {
+  display: flex;
+}
+
+/* 2.1. Sidebar */
+.admin-sidebar {
+  width: 240px;
+  height: calc(100vh - 60px); /* Chiều cao 100% trừ navbar */
+  position: fixed;
+  top: 60px;
+  left: 0;
+  background: var(--white);
+  padding-top: 20px;
+  border-right: 1px solid #dee2e6;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.admin-sidebar .nav-link {
+  color: var(--dark-blue);
+  font-weight: 500;
+  padding: 12px 20px;
+  border-radius: 0 30px 30px 0;
+}
+
+.admin-sidebar .nav-link i {
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+}
+
+.admin-sidebar .nav-link:hover {
+  background-color: var(--soft-blue);
+  color: var(--light-blue);
+}
+
+.admin-sidebar .nav-link.active {
+  background-color: var(--light-blue);
+  color: var(--white);
+  font-weight: 600;
+}
+
+/* 2.2. Main Content */
+.admin-content {
+  /* Dịch qua phải 240px (bằng chiều rộng sidebar) */
+  margin-left: 240px; 
+  width: calc(100% - 240px);
+  padding: 30px;
+}
+
+/* Thẻ thống kê */
+.stat-card {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-radius: 12px;
+  color: var(--white);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card i {
+  font-size: 2.5rem;
+  margin-right: 20px;
+  opacity: 0.8;
+}
+
+.stat-card h5 {
+  font-weight: 600;
+  margin: 0;
+}
+
+.stat-card p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}

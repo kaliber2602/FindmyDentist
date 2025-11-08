@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FindMyDentist - API Docs</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+    <style>
+        /* Tùy chỉnh giao diện */
+        body { margin: 0; background: #fafafa; }
+        .swagger-ui .topbar { 
+            background-color: #003b5c; /* Màu xanh của dự án */
+            padding: 10px 20px;
+        }
+        .swagger-ui .topbar .download-url-wrapper {
+             display: none; /* Ẩn thanh nhập URL mặc định */
+        }
+        .swagger-ui .topbar .select-wrapper {
+            float: right; margin: 5px 0;
+        }
+        .swagger-ui .topbar .select-wrapper select {
+            min-width: 250px; padding: 8px 12px;
+            border-radius: 4px; border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="swagger-ui-topbar" class="topbar">
+        <div class="wrapper">
+            <div class="topbar-wrapper">
+                <div class="select-wrapper">
+                    <select id="select_service" onchange="onServiceChange(this)">
+                        <option value="">Chọn Service để xem API</option>
+                        {% for service in service_urls %}
+                            <option value="{{ service.url }}">{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+
+    <script>
+        let ui; // Biến global để giữ instance của SwaggerUI
+
+        // Hàm này được gọi khi người dùng đổi dropdown
+        function onServiceChange(selectElement) {
+            const url = selectElement.value;
+            if (url && ui) {
+                // Tải spec (tài liệu) mới khi người dùng chọn
+                ui.specActions.updateUrl(url);
+                ui.specActions.download(url);
+            }
+        }
+
+        window.onload = function() {
+            // Khởi tạo Swagger UI
+            ui = SwaggerUIBundle({
+                dom_id: '#swagger-ui', // Gắn vào div#swagger-ui
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+            });
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | DentalCare</title>
+    <link rel="stylesheet" href="../css/register.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-light shadow-sm px-4 py-3">
+      <a href="index.html" class="navbar-brand fw-bold "
+        >FindMyDentist</a
+      >
+    </nav>
+
+    <section class="register-section py-5">
+      <div class="container card-container text-center">
+        <h2 class="fw-bold mb-4">Create Your Account</h2>
+
+        <div id="role-select" class="row justify-content-center g-4">
+          <div class="col-md-4">
+            <div class="role-card p-4" data-role="CUSTOMER">
+              <img src="../assets/imgs/customer.png" alt="Customer" />
+              <h5 class="mt-3 fw-semibold">Customer</h5>
+              <p>Book appointments and manage your dental visits easily.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="role-card p-4" data-role="DENTIST">
+              <img src="../assets/imgs/profile.png" alt="Dentist/Clinic" />
+              <h5 class="mt-3 fw-semibold">Dentist / Clinic</h5>
+              <p>Manage your clinic, schedule, and connect with patients.</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="register-form" class="register-form mt-5 d-none">
+          <h4 class="fw-bold mb-3" id="form-title">Register</h4>
+
+          <div class="row justify-content-center">
+            <div class="col-md-7 text-start">
+            
+              <div class="row g-3">
+                <div class="col-md-6 mb-3">
+                  <label for="regFirstName" class="form-label">First Name (Tên)</label>
+                  <input type="text" id="regFirstName" class="form-control form-input" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="regLastName" class="form-label">Last Name (Họ)</label>
+                  <input type="text" id="regLastName" class="form-control form-input" required />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="regEmail" class="form-label">Email</label>
+                <input type="email" id="regEmail" class="form-control form-input" required />
+              </div>
+
+              <div class="mb-3">
+                <label for="regPassword" class="form-label">Password (min 6 characters)</label>
+                <input type="password" id="regPassword" class="form-control form-input" required />
+              </div>
+
+              <div class="mb-3">
+                <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" id="regConfirmPassword" class="form-control form-input" required />
+              </div>
+
+              <div class="mb-3">
+                <label for="regPhone" class="form-label">Phone Number</label>
+                <input type="tel" id="regPhone" class="form-control form-input" required />
+              </div>
+
+              <div class="mb-3 d-none" id="clinic-field">
+                <label for="regClinicName" class="form-label">Clinic Name / License (Optional)</label>
+                <input
+                  type="text"
+                  id="regClinicName"
+                  class="form-control form-input"
+                  placeholder="Your clinic name or license"
+                />
+              </div>
+
+              <div id="registerMessage" class="mt-3"></div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-secondary" id="back-btn">
+                  ← Back
+                </button>
+                <button type="submit" class="btn btn-register">
+                  Register
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <script src="../js/register.js"></script>
+  </body>
+</html>

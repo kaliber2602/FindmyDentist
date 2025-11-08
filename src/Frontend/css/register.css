@@ -1,0 +1,137 @@
+:root {
+  --dark-blue: #003b5c;
+  --medium-blue: #005a8c;
+  --light-blue: #008cbe;
+  --soft-blue: #d5e3e8;
+  --white: #ffffff;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--soft-blue);
+  color: var(--dark-blue);
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  color: var(--light-blue) !important;
+  font-weight: 700;
+}
+.register-section{
+  background-color: var(--soft-blue);
+}
+
+.register-section card-container{
+  background-color: var(--soft-blue);
+}
+
+/* Section title */
+
+.register-section h2 {
+  color: var(--dark-blue);
+}
+
+/* Role selection cards */
+.role-card {
+  background-color: var(--white);
+  border-radius: 12px;
+  border: 2px solid var(--soft-blue); /* thêm viền nhẹ */
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 15px 25px, rgba(0, 0, 0, 0.05) 0px 5px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.role-card h5 {
+  color: var(--dark-blue);
+}
+
+.role-card p {
+  color: var(--medium-blue);
+}
+
+.role-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--light-blue);
+  box-shadow: 0 8px 20px rgba(0, 59, 92, 0.15);
+}
+
+.role-card img {
+  width: 100px; /* tăng nhẹ cho cân đối */
+  height: 300px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px rgba(0, 59, 92, 0.1));
+}
+
+/* Register form */
+.register-form {
+  max-width: 600px;
+  margin: auto auto;
+  background-color: var(--white);
+  border-radius: 12px;
+  padding: 40px 25px;
+  box-shadow: 0 4px 20px rgba(0, 59, 92, 0.15);
+  border: 1px solid var(--soft-blue);
+}
+
+.form-input {
+  border: 1px solid var(--light-blue);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--dark-blue);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--medium-blue);
+  box-shadow: 0 0 4px rgba(0, 90, 140, 0.3);
+}
+
+/* Buttons */
+.btn-register {
+  background-color: var(--light-blue) !important;
+  color: var(--white) !important;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 24px;
+  border: none;
+  transition: background-color 0.3s ease !important;
+}
+
+.btn-register:hover {
+  background-color: var(--medium-blue) !important;
+}
+
+.btn-secondary {
+  background-color: var(--soft-blue) !important;
+  color: var(--dark-blue) !important;
+  border: 1px solid var(--light-blue) !important;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--light-blue) !important;
+  color: var(--white) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .register-form {
+    padding: 20px;
+  }
+
+  .role-card img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .register-section h2 {
+    font-size: 1.5rem;
+  }
+}

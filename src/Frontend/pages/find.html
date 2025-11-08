@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Dentists | DentalCare</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/find.css" />
+  <style>
+    .form-label i {
+      color: #0d6efd;
+      margin-right: 5px;
+    }
+
+    .location-input {
+      position: relative;
+    }
+
+    .location-input i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+    }
+
+    .location-input input {
+      padding-left: 35px;
+    }
+
+    .autocomplete-suggestions {
+      position: absolute;
+      background: white;
+      border: 1px solid #ddd;
+      z-index: 1000;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      border-radius: 8px;
+    }
+
+    .autocomplete-suggestions div {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .autocomplete-suggestions div:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-light shadow-sm px-4 py-3 bg-white">
+    <a href="index.html" class="navbar-brand fw-bold text-primary">FindMyDentist</a>
+  </nav>
+
+  <!-- Find Section -->
+  <section class="find-section py-5">
+    <div class="container">
+      <h2 class="text-center fw-bold mb-4">Find Dentists or Clinics</h2>
+
+      <!-- Bộ lọc nâng cao -->
+      <div class="filter-container shadow-sm p-4 mb-5 rounded-4 bg-white">
+        <form id="filterForm" class="row g-3 align-items-end">
+
+          <!-- Địa chỉ người dùng -->
+          <div class="col-md-4">
+            <label for="userAddress" class="form-label fw-semibold">
+              <i class="bi bi-geo-alt"></i>Location / Address
+            </label>
+            <div class="location-input">
+              <i class="bi bi-geo-alt-fill"></i>
+              <input type="text" id="userAddress" class="form-control"
+                placeholder="Enter your address or area (e.g., Nguyễn Văn Cừ, Quận 5)" />
+              <div id="suggestions" class="autocomplete-suggestions"></div>
+            </div>
+          </div>
+
+          <!-- Loại tìm kiếm -->
+          <div class="col-md-2">
+            <label for="searchType" class="form-label fw-semibold">Search Type</label>
+            <select id="searchType" class="form-select">
+              <option value="all">All</option>
+              <option value="dentist">Dentist</option>
+              <option value="clinic">Clinic</option>
+            </select>
+          </div>
+
+          <!-- Thành phố -->
+          <div class="col-md-3">
+            <label for="city" class="form-label fw-semibold">City / Province</label>
+            <select id="city" class="form-select">
+              <option value="">All</option>
+              <option value="hanoi">Hà Nội</option>
+              <option value="hochiminh">TP. Hồ Chí Minh</option>
+              <option value="haiphong">Hải Phòng</option>
+              <option value="danang">Đà Nẵng</option>
+              <option value="cantho">Cần Thơ</option>
+              <option value="hue">Thừa Thiên Huế</option>
+              <option value="caobang">Cao Bằng</option>
+              <option value="dienbien">Điện Biên</option>
+              <option value="hoabinh">Hòa Bình</option>
+              <option value="laichau">Lai Châu</option>
+              <option value="laocai">Lào Cai</option>
+              <option value="sonla">Sơn La</option>
+              <option value="tuyenquang">Tuyên Quang</option>
+              <option value="thainguyen">Thái Nguyên</option>
+              <option value="phutho">Phú Thọ</option>
+              <option value="bacninh">Bắc Ninh</option>
+              <option value="hungyen">Hưng Yên</option>
+              <option value="ninhbinh">Ninh Bình</option>
+              <option value="quangtri">Quảng Trị</option>
+              <option value="quangngai">Quảng Ngãi</option>
+              <option value="gialai">Gia Lai</option>
+              <option value="khanhhoa">Khánh Hòa</option>
+              <option value="lamdong">Lâm Đồng</option>
+              <option value="daklak">Đắk Lắk</option>
+              <option value="dongnai">Đồng Nai</option>
+              <option value="tayninh">Tây Ninh</option>
+              <option value="vinhlong">Vĩnh Long</option>
+              <option value="dongthap">Đồng Tháp</option>
+              <option value="camau">Cà Mau</option>
+              <option value="angiang">An Giang</option>
+              <option value="kiengiang">Kiên Giang</option>
+              <option value="bentre">Bến Tre</option>
+              <option value="longan">Long An</option>
+              <option value="travinh">Trà Vinh</option>
+            </select>
+          </div>
+
+          <!-- Chuyên khoa -->
+          <div class="col-md-3">
+            <label for="specialtySelect" class="form-label fw-semibold">Specialty</label>
+            <select id="specialtySelect" class="form-select">
+              <option value="">All Specialties</option>
+              <option>Orthodontics</option>
+              <option>Implant</option>
+              <option>Cosmetic Dentistry</option>
+              <option>Pediatric Dentistry</option>
+              <option>Oral Surgery</option>
+            </select>
+          </div>
+
+          <!-- Dịch vụ -->
+          <div class="col-md-3">
+            <label for="serviceSelect" class="form-label fw-semibold">Service</label>
+            <select id="serviceSelect" class="form-select">
+              <option value="">Any Service</option>
+              <option>Teeth Whitening</option>
+              <option>Braces</option>
+              <option>Tooth Extraction</option>
+              <option>Check-up</option>
+              <option>Cleaning</option>
+            </select>
+          </div>
+
+          <!-- Đánh giá -->
+          <div class="col-md-2">
+            <label for="ratingSelect" class="form-label fw-semibold">Minimum Rating</label>
+            <select id="ratingSelect" class="form-select">
+              <option value="">Any</option>
+              <option>4★ & above</option>
+              <option>3★ & above</option>
+              <option>2★ & above</option>
+            </select>
+          </div>
+
+          <!-- Sắp xếp -->
+          <div class="col-md-2">
+            <label for="sortBy" class="form-label fw-semibold">Sort By</label>
+            <select id="sortBy" class="form-select">
+              <option value="name">Name (A-Z)</option>
+              <option value="rating">Rating</option>
+              <option value="experience">Experience</option>
+              <option value="distance">Nearest First</option>
+            </select>
+          </div>
+
+          <!-- Keyword -->
+          <div class="col-md-3">
+            <label for="keyword" class="form-label fw-semibold">Keyword</label>
+            <input type="text" id="keyword" class="form-control" placeholder="Enter clinic or dentist name..." />
+          </div>
+
+          <!-- Nút -->
+          <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-register w-100">
+              Apply
+            </button>
+            <button type="reset" class="btn btn-secondary w-100">
+              Reset
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Thanh tìm kiếm chính -->
+      <div class="search-bar shadow-sm rounded-pill d-flex align-items-center p-2 mb-5 bg-white">
+        <input type="text" class="form-control border-0 rounded-pill px-3"
+          placeholder="Search by city, specialty, or dentist/clinic name..." id="searchInput" />
+        <button class="btn btn-search px-4 ms-2">Find</button>
+      </div>
+
+      <!-- Nút chuyển sang compare.html  -->
+      <div class="text-end mb-4">
+        <a href="compare.html" class="btn btn-outline-primary fw-semibold">
+          Go to Compare
+        </a>
+      </div>
+
+      <!-- Kết quả -->
+      <div class="row g-4" id="resultsContainer">
+        <!-- Dentist cards render tại đây -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Bootstrap icons -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
+
+  <script src="../js/find.js"></script>
+</body>
+
+</html>

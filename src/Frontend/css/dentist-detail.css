@@ -1,0 +1,44 @@
+:root {
+  --dark-blue: #003b5c;
+  --medium-blue: #005a8c;
+  --light-blue: #008cbe;
+  --soft-blue: #d5e3e8;
+  --white: #ffffff;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--soft-blue);
+  color: var(--dark-blue);
+}
+
+.navbar {
+  background-color: var(--white);
+}
+
+.detail-section .card {
+  background-color: var(--white);
+}
+
+.card-body h3 {
+  color: var(--dark-blue);
+}
+
+.btn-success {
+  background-color: var(--light-blue);
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: var(--medium-blue);
+}
+
+.btn-outline-primary {
+  color: var(--medium-blue);
+  border-color: var(--medium-blue);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--medium-blue);
+  color: var(--white);
+}

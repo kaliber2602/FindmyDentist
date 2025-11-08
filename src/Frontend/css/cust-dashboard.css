@@ -1,0 +1,113 @@
+:root {
+  --dark-blue: #003b5c;
+  --medium-blue: #005a8c;
+  --light-blue: #008cbe;
+  --soft-blue: #f0f4f7; 
+  --white: #ffffff;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--soft-blue);
+  color: var(--dark-blue);
+  padding-top: 60px; /* Bằng chiều cao navbar */
+}
+
+/* 1. Navbar */
+.navbar {
+  border-bottom: 1px solid #dee2e6;
+}
+.navbar-brand {
+  color: var(--light-blue) !important;
+  font-weight: 700;
+}
+.btn-login {
+  background-color: var(--light-blue);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: background-color 0.3s ease;
+}
+.btn-login:hover {
+  background-color: var(--medium-blue);
+  color: var(--white);
+}
+
+
+/* 2. Layout chính */
+.dashboard-layout {
+  display: flex;
+}
+
+/* 2.1. Sidebar */
+.dashboard-sidebar {
+  width: 260px;
+  height: calc(100vh - 60px); /* Chiều cao 100% trừ navbar */
+  position: fixed;
+  top: 60px;
+  left: 0;
+  background: var(--white);
+  border-right: 1px solid #dee2e6;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-profile {
+    border-bottom: 1px solid #eee;
+}
+.profile-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--soft-blue);
+}
+
+.dashboard-sidebar .nav-link {
+  color: var(--dark-blue);
+  font-weight: 500;
+  padding: 14px 20px;
+  border-left: 4px solid transparent;
+}
+
+.dashboard-sidebar .nav-link i {
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+}
+
+.dashboard-sidebar .nav-link:hover {
+  background-color: var(--soft-blue);
+  color: var(--light-blue);
+}
+
+.dashboard-sidebar .nav-link.active {
+  background-color: var(--soft-blue);
+  color: var(--light-blue);
+  font-weight: 600;
+  border-left: 4px solid var(--light-blue);
+}
+
+/* 2.2. Main Content */
+.dashboard-content {
+  margin-left: 260px; /* Dịch qua phải 260px (bằng chiều rộng sidebar) */
+  width: calc(100% - 260px);
+  padding: 30px;
+  min-height: calc(100vh - 60px);
+}
+
+/* (Thêm) Thẻ lịch hẹn (Dùng cho tab Lịch hẹn) */
+.appointment-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 59, 92, 0.08);
+  margin-top: 20px;
+}
+.appointment-card .card-body {
+    padding: 24px;
+}
+.appointment-card .card-title {
+    font-weight: 600;
+    color: var(--dark-blue);
+}

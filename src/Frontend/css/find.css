@@ -1,0 +1,207 @@
+:root {
+  --dark-blue: #003b5c;
+  --medium-blue: #005a8c;
+  --light-blue: #008cbe;
+  --soft-blue: #d5e3e8;
+  --white: #ffffff;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--soft-blue);
+  color: var(--dark-blue);
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  color: var(--light-blue) !important;
+}
+
+/* Btn settings */
+
+/* Buttons */
+.btn-register {
+  background-color: var(--light-blue) !important;
+  color: var(--white) !important;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 24px;
+  border: none;
+  transition: background-color 0.3s ease !important;
+}
+
+.btn-register:hover {
+  background-color: var(--medium-blue) !important;
+}
+
+.btn-secondary {
+  background-color: var(--soft-blue) !important;
+  color: var(--dark-blue) !important;
+  border: 1px solid var(--light-blue) !important;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--light-blue) !important;
+  color: var(--white) !important;
+}
+
+
+/* Search Section */
+.find-section h2 {
+  color: var(--dark-blue);
+}
+
+.search-bar {
+  max-width: 700px;
+  margin: 0 auto;
+  background-color: var(--white);
+  transition: box-shadow 0.3s ease;
+}
+
+.search-bar:focus-within {
+  box-shadow: 0 0 8px rgba(0, 90, 140, 0.2);
+}
+
+.search-bar input {
+  font-size: 1rem;
+}
+
+.btn-search {
+  background-color: var(--light-blue) !important;
+  color: var(--white) !important;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-search:hover {
+  background-color: var(--medium-blue) !important;
+}
+
+/* Dentist cards */
+.dentist-card {
+  background-color: var(--white) !important;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 59, 92, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dentist-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(0, 59, 92, 0.2);
+}
+
+.dentist-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.dentist-info {
+  padding: 20px;
+}
+
+.dentist-info h5 {
+  color: var(--dark-blue);
+  font-weight: 600;
+}
+
+.btn-compare {
+  background-color: var(--soft-blue) !important;
+  color: var(--dark-blue) !important;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-compare:hover {
+  background-color: var(--light-blue) !important;
+  color: var(--white) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .btn-search {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+
+.filter-bar {
+  background-color: var(--white);
+  box-shadow: 0 4px 15px rgba(0, 59, 92, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.filter-bar label {
+  font-weight: 600;
+  color: var(--dark-blue);
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.filter-bar select,
+.filter-bar input[type="text"] {
+  border-radius: 10px;
+  border: 1px solid #d9e3e8;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.filter-bar select:focus,
+.filter-bar input:focus {
+  border-color: var(--light-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 140, 190, 0.15);
+  outline: none;
+}
+
+.filter-bar .filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-bar .filter-col {
+  flex: 1 1 200px;
+}
+
+.filter-bar .btn-filter {
+  background-color: var(--light-blue) !important;
+  color: var(--white) !important;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.filter-bar .btn-filter:hover {
+  background-color: var(--medium-blue) !important;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .filter-bar .filter-row {
+    flex-direction: column;
+  }
+  .filter-bar .filter-col {
+    width: 100%;
+  }
+}
