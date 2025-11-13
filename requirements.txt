@@ -2,7 +2,6 @@ fastapi
 uvicorn[standard]
 httpx
 
-# (MỚI) Dùng cho Services
 aiomysql             # <-- THAY THẾ CHO asyncmy
 pydantic-settings    # Đọc file .env
 passlib[bcrypt]
