@@ -54,7 +54,8 @@ async function checkLoginStatus() {
  */
 async function handleLogout() {
   try {
-    await fetch(`${API_BASE_URL}/logout`, { method: 'POST' });
+    await fetch(`${API_BASE_URL}/logout`, { 
+      method: 'POST' });
   } catch (error) {
     console.error('Lỗi khi logout:', error);
   } finally {
@@ -71,7 +72,7 @@ async function handleLogin() {
   const email = document.getElementById("email").value.trim();
   const pass = document.getElementById("password").value.trim();
   const messageEl = document.getElementById("loginMessage");
-
+  
   if (!email || !pass) {
     messageEl.textContent = "Vui lòng nhập email và mật khẩu.";
     messageEl.className = "text-danger small";
@@ -92,6 +93,7 @@ async function handleLogin() {
 
     if (response.ok) {
       // Đăng nhập thành công, backend đã set cookie
+      localStorage.setItem("user_id", data.user.user_id);
       if (data.user && data.user.role === "ADMIN") {
         window.location.href = "admin.html"; // Chuyển hướng Admin
       } else if (data.user && data.user.role === "DENTIST") {
@@ -192,4 +194,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   setInterval(moveCarousel, 2500);
+
 });
+

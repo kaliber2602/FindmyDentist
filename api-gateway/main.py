@@ -35,6 +35,9 @@ app.add_middleware(
 SERVICE_URLS = {
     "auth": "http://localhost:8001",
     "search": "http://localhost:8002",
+    "appointment": "http://localhost:8003",
+    "dentist_management": "http://localhost:8004",
+    "customer_service": "http://localhost:8005"
 }
 client = httpx.AsyncClient()
 
@@ -51,6 +54,7 @@ async def get_unified_swagger_ui(request: Request):
         "service_urls": [
             {"name": "Auth Service", "url": "/docs-specs/auth.json"},
             {"name": "Search Service", "url": "/docs-specs/search.json"},
+            {"name": "Appointment Service", "url": "/docs-specs/appointment.json"}
         ]
     })
 
@@ -73,7 +77,16 @@ async def get_search_openapi():
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-
+@app.get("/docs-specs/appointment.json")
+async def get_appointment_openapi():
+    """Lấy schema OpenAPI từ Appointment service (Port 8003)"""
+    try:
+        response = await client.get(f"{SERVICE_URLS['appointment']}/openapi.json")
+        return JSONResponse(content=response.json(), status_code=response.status_code)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+    
 # ===== HÀM PROXY VÀ ĐỊNH TUYẾN (Giữ nguyên) =====
 async def _proxy(request: Request, target_url: str):
     method = request.method
@@ -104,6 +117,22 @@ async def proxy_auth(request: Request, path: str):
 async def proxy_search(request: Request, path: str):
     target_url = f"{SERVICE_URLS['search']}/{path}"
     return await _proxy(request, target_url)
+
+@app.api_route("/api/appointment/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_appointment(request: Request, path: str):
+    target_url = f"{SERVICE_URLS['appointment']}/{path}"
+    return await _proxy(request, target_url)
+
+@app.api_route("/api/dentist_management/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_dentist_management(request: Request, path: str):
+    target_url = f"{SERVICE_URLS['dentist_management']}/{path}"
+    return await _proxy(request, target_url)
+
+@app.api_route("/api/customer_service/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_customer_service(request: Request, path: str):      
+    target_url = f"{SERVICE_URLS['customer_service']}/{path}"
+    return await _proxy(request, target_url)
+
 
 @app.get("/")
 def read_root():

@@ -96,6 +96,5 @@ async def get_current_user(token: str = Depends(cookie_scheme)) -> TokenPayload:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Nội dung token không hợp lệ",
         )
-    
     # Nếu mọi thứ OK, trả về payload (chứa user_id và role)
     return token_data

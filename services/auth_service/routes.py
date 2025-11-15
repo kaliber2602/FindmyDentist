@@ -98,7 +98,7 @@ async def login_user(
             key=COOKIE_NAME,     # Tên cookie (từ file security.py)
             value=access_token,  # Giá trị token
             httponly=True,       # <-- SỬA LỖI TẠI ĐÂY (từ 'httponply')
-            samesite='lax',      # (Bảo mật) Chống CSRF
+            samesite='none',      # (Bảo mật) Chống CSRF
             secure=False,        # (TODO) Đặt là True nếu dùng HTTPS
             max_age=60 * 60 * 24 # Hết hạn sau 1 ngày (giống token)
         )
@@ -112,6 +112,7 @@ async def login_user(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi máy chủ: {e}")
+
 @router.post(
     "/logout",
     summary="Đăng xuất",
