@@ -2,8 +2,8 @@ fastapi
 uvicorn[standard]
 httpx
 
-aiomysql             # <-- THAY THẾ CHO asyncmy
-pydantic-settings    # Đọc file .env
+aiomysql             
+pydantic-settings    
 passlib[bcrypt]
 jinja2
 passlib==1.7.4  

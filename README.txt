@@ -1,3 +1,5 @@
+./start_all.bat
+
 pip install -r requirements.txt
 
 python -m services.auth_service.main 

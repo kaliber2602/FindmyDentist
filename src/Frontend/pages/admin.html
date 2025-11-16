@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,11 +9,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/admin.css" />
 </head>
+
 <body>
     <nav class="navbar navbar-dark bg-dark-blue fixed-top shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="#">
-                <img src="../assets/imgs/administrator.png" alt="Admin Icon" width="30" height="30" class="d-inline-block align-text-top me-2">
+                <img src="../assets/imgs/administrator.png" alt="Admin Icon" width="30" height="30"
+                    class="d-inline-block align-text-top me-2">
                 FindMyDentist - Admin Panel
             </a>
             <button class="btn btn-outline-light" id="logoutButton">
@@ -39,7 +42,7 @@
                         <i class="bi bi-hospital"></i> Manage Clinics
                     </a>
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="#" data-view="dentists">
                         <i class="bi bi-person-badge"></i> Manage Dentists
                     </a>
@@ -54,7 +57,7 @@
                         <i class="bi bi-journal-text"></i> View Reports
                     </a>
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="#" data-view="verification-queue">
                         <i class="bi bi-shield-check"></i> Verification Queue
                     </a>
@@ -64,36 +67,47 @@
 
         <main class="admin-content">
             <div class="container-fluid">
-                <div class="d-flex justify-content-center align-items-center" style="height: 50vh;">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                <div id="viewHeader" class="mb-3">
+                    <h1 class="h2" id="viewTitle">Dashboard</h1>
+                </div>
+
+                <div id="searchContainer" class="mb-3"></div>
+
+                <div id="tableContainer" class="table-responsive bg-white rounded shadow-sm">
+                    <div class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
                 </div>
+
+                <div id="paginationContainer" class="mt-4 d-flex justify-content-center"></div>
             </div>
         </main>
     </div>
 
     <div class="modal fade" id="adminEditModal" tabindex="-1" aria-labelledby="adminEditModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="adminEditModalLabel">Edit Item</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="adminEditModalBody">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Loading...</span>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminEditModalLabel">Edit Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="adminEditModalBody">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveChanges">Save changes</button>
+                </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="btnSaveChanges">Save changes</button>
-          </div>
         </div>
-      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/admin.js"></script>
 </body>
+
 </html>
