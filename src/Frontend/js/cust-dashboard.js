@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:8000/api/auth";
+const API_AUTH_BASE = "http://localhost:8000/api/auth";
+const API_PROFILE_BASE = "http://localhost:8000/api/profile";
 // (TODO) Cần thêm API URL cho các service khác
 // const API_USER_URL = "http://localhost:8000/api/users";
 // const API_APPOINTMENT_URL = "http://localhost:8000/api/appointments";
@@ -10,18 +11,19 @@ let currentCustomer = null; // Biến lưu thông tin user
  */
 async function checkCustomerAuth() {
   try {
-    const response = await fetch(`${API_BASE_URL}/me`, {
+    const response = await fetch(`${API_AUTH_BASE}/me`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
     });
 
     if (response.ok) {
       const data = await response.json();
       
-      if (data.role === 'CUSTOMER') {
-        currentCustomer = data; // Lưu user
-        // (MỚI) Bắt đầu tải thông tin Profile
-        loadDashboardData(data.user_id);
+        if (data.role === 'CUSTOMER') {
+        currentCustomer = data; // Lưu user minimal
+        // (MỚI) Bắt đầu tải thông tin Profile từ profile service
+        loadDashboardData();
       } else {
         // Là ADMIN hoặc DENTIST, không có quyền
         alert('Trang này chỉ dành cho khách hàng.');
@@ -42,30 +44,42 @@ async function checkCustomerAuth() {
  * HÀM 2: Tải dữ liệu ban đầu cho Dashboard
  */
 async function loadDashboardData(userId) {
-    // (TODO) Bước tiếp theo là tạo API /api/users/{user_id}
-    // const profileResponse = await fetch(`${API_USER_URL}/${userId}`);
-    // const profileData = await profileResponse.json();
-    
-    // (Giả lập) Dùng data từ /me và dữ liệu giả
-    const profileData = {
-        first_name: "Nguyễn Văn",
-        last_name: "A",
-        email: "example@gmail.com", // (Nên lấy từ API)
-        phone_number: "0901234567"
+  try {
+    // Gọi API profile/me qua API Gateway (cookie JWT sẽ được gửi)
+    const profileResp = await fetch(`${API_PROFILE_BASE}/me`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    });
+
+    if (!profileResp.ok) {
+      throw new Error('Không thể tải profile');
     }
 
+    const json = await profileResp.json();
+    const profileData = json.profile || {};
+
+    // Merge vào currentCustomer để dùng ở các view
+    currentCustomer = Object.assign({}, currentCustomer || {}, profileData);
+
     // Cập nhật UI
-    document.getElementById('userName').textContent = `${profileData.first_name} ${profileData.last_name}`;
-    document.getElementById('userEmail').textContent = profileData.email;
-    
+    document.getElementById('userName').textContent = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim();
+    document.getElementById('userEmail').textContent = profileData.email || '';
+
     // Tải view "Profile" làm mặc định
     loadContent('profile', profileData);
+  } catch (err) {
+    console.error('Lỗi khi tải profile:', err);
+    // Fallback: show minimal info
+    const fallback = { first_name: '', last_name: '', email: '', phone_number: '' };
+    loadContent('profile', fallback);
+  }
 }
 
 /**
  * HÀM 3: Tải nội dung chính (Xử lý click sidebar)
  */
-function loadContent(viewName, data) {
+async function loadContent(viewName, data) {
   const contentArea = document.getElementById('dashboardContentArea');
   contentArea.innerHTML = ""; // Xóa nội dung cũ
 
@@ -101,33 +115,100 @@ function loadContent(viewName, data) {
           </div>
         </div>
       `;
+      // Handle profile form submit
+      document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const data = {
+          first_name: form.querySelectorAll('input')[1].value,
+          last_name: form.querySelectorAll('input')[0].value,
+          phone_number: form.querySelectorAll('input')[3].value
+        };
+        try {
+          const resp = await fetch(`${API_PROFILE_BASE}/me`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify(data)
+          });
+          if (resp.ok) {
+            alert('Cập nhật thành công');
+            // reload profile
+            loadDashboardData();
+          } else {
+            const j = await resp.json();
+            alert('Lỗi: ' + (j.detail || resp.status));
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Lỗi khi cập nhật profile');
+        }
+      });
       break;
       
     case 'appointments':
-      contentArea.innerHTML = `
-        <h2 class="h3">Lịch hẹn của tôi</h2>
-        <div class="card appointment-card">
-          <div class="card-body">
-            <h5 class="card-title">Khám tổng quát (Dữ liệu mẫu)</h5>
-            <p class="card-text text-primary fw-semibold mb-1">Nha khoa BrightSmile</p>
-            <p class="card-text text-muted mb-2"><i class="bi bi-geo-alt-fill me-2"></i>123 Đường ABC, Q.1</p>
-            <h6 class="text-dark">Thứ Hai, 10/11/2025 - 10:00 AM</h6>
-          </div>
-        </div>
-      `;
-      // (TODO: Gọi API để tải lịch hẹn thật)
+      contentArea.innerHTML = `<h2 class="h3">Lịch hẹn của tôi</h2><div id="appointmentsList">Đang tải...</div>`;
+      // Load appointments from API
+      try {
+        const resp = await fetch(`${API_PROFILE_BASE}/me/appointments`, {method: 'GET', credentials: 'include'});
+        if (!resp.ok) throw new Error('Không thể tải lịch hẹn');
+        const j = await resp.json();
+        const list = j.appointments || [];
+        const container = document.getElementById('appointmentsList');
+        if (list.length === 0) {
+          container.innerHTML = '<p>Chưa có lịch hẹn.</p>';
+        } else {
+          container.innerHTML = list.map(a => {
+            const dt = new Date(a.appointment_datetime).toLocaleString();
+            const services = (a.services || []).map(s => s.name).join(', ');
+            const dentist = a.dentist_first || '';
+            return `
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h5 class="card-title">${services}</h5>
+                  <p class="card-text text-primary fw-semibold mb-1">${a.clinic_name || ''}</p>
+                  <p class="card-text text-muted mb-2">Bác sĩ: ${dentist}</p>
+                  <h6 class="text-dark">${dt} - <span class="text-muted">${a.status}</span></h6>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('appointmentsList').innerHTML = '<p>Lỗi khi tải lịch hẹn.</p>';
+      }
       break;
 
     case 'history':
-      contentArea.innerHTML = `
-        <h2 class="h3">Lịch sử khám</h2>
-        <div class="card mt-4">
-          <div class="card-body text-center p-5">
-            <i class="bi bi-clipboard-data-fill fs-1 text-muted"></i>
-            <p class="mt-3">Chưa có lịch sử khám nào.</p>
-          </div>
-        </div>
-      `;
+      contentArea.innerHTML = `<h2 class="h3">Lịch sử khám</h2><div id="historyList">Đang tải...</div>`;
+      try {
+        const resp = await fetch(`${API_PROFILE_BASE}/me/history`, {method: 'GET', credentials: 'include'});
+        if (!resp.ok) throw new Error('Không thể tải lịch sử');
+        const j = await resp.json();
+        const list = j.history || [];
+        const container = document.getElementById('historyList');
+        if (list.length === 0) {
+          container.innerHTML = '<p>Chưa có lịch sử khám nào.</p>';
+        } else {
+          container.innerHTML = list.map(a => {
+            const dt = new Date(a.appointment_datetime).toLocaleString();
+            const review = a.review ? `<p>Đánh giá: ${a.review.rating} - ${a.review.comment}</p>` : '';
+            return `
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h5 class="card-title">${a.clinic_name || ''}</h5>
+                  <p class="card-text text-muted mb-2">${dt}</p>
+                  ${review}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('historyList').innerHTML = '<p>Lỗi khi tải lịch sử.</p>';
+      }
       break;
       
     case 'settings':
@@ -138,21 +219,38 @@ function loadContent(viewName, data) {
             <form id="passwordForm">
               <div class="mb-3">
                 <label class="form-label">Mật khẩu cũ</label>
-                <input type="password" class="form-control" required>
+                <input id="oldPassword" type="password" class="form-control" required>
               </div>
               <div class="mb-3">
                 <label class="form-label">Mật khẩu mới</label>
-                <input type="password" class="form-control" required>
+                <input id="newPassword" type="password" class="form-control" required>
               </div>
               <div class="mb-3">
                 <label class="form-label">Xác nhận mật khẩu mới</label>
-                <input type="password" class="form-control" required>
+                <input id="confirmPassword" type="password" class="form-control" required>
               </div>
               <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
             </form>
           </div>
         </div>
       `;
+      document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const oldP = document.getElementById('oldPassword').value;
+        const newP = document.getElementById('newPassword').value;
+        const conf = document.getElementById('confirmPassword').value;
+        if (newP !== conf) { alert('Mật khẩu mới không khớp'); return; }
+        try {
+          const resp = await fetch(`${API_PROFILE_BASE}/me/change-password`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify({old_password: oldP, new_password: newP})
+          });
+          if (resp.ok) { alert('Đổi mật khẩu thành công'); }
+          else { const j = await resp.json(); alert('Lỗi: ' + (j.detail || resp.status)); }
+        } catch (err) { console.error(err); alert('Lỗi khi đổi mật khẩu'); }
+      });
       break;
       
     default:
@@ -196,10 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // (Tải lại dữ liệu giả)
       // (Sau này bạn sẽ tải dữ liệu thật từ API tại đây)
       const profileData = {
-        first_name: currentCustomer.first_name || "Nguyễn Văn",
-        last_name: currentCustomer.last_name || "A",
-        email: currentCustomer.email || "...",
-        phone_number: currentCustomer.phone_number || "..."
+        first_name: currentCustomer?.first_name || "Nguyễn Văn",
+        last_name: currentCustomer?.last_name || "A",
+        email: currentCustomer?.email || "...",
+        phone_number: currentCustomer?.phone_number || "..."
       };
       
       loadContent(view, profileData);

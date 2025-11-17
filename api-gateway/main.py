@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, HTMLResponse 
+from fastapi.responses import JSONResponse, HTMLResponse, Response as FastAPIResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import logging
@@ -22,10 +22,10 @@ app = FastAPI(
 )
 # =================================================
 
-# --- CORS (Giữ nguyên) ---
+# --- CORS: cho phép các origin cụ thể để credentials hoạt động ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost", "http://127.0.0.1", "http://localhost:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,6 +35,8 @@ app.add_middleware(
 SERVICE_URLS = {
     "auth": "http://localhost:8001",
     "search": "http://localhost:8002",
+    "profile": "http://localhost:8003",
+    "notification": "http://localhost:8004",
 }
 client = httpx.AsyncClient()
 
@@ -51,6 +53,8 @@ async def get_unified_swagger_ui(request: Request):
         "service_urls": [
             {"name": "Auth Service", "url": "/docs-specs/auth.json"},
             {"name": "Search Service", "url": "/docs-specs/search.json"},
+            {"name": "Profile Service", "url": "/docs-specs/profile.json"},
+            {"name": "Notification Service", "url": "/docs-specs/notification.json"},
         ]
     })
 
@@ -74,6 +78,26 @@ async def get_search_openapi():
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
+@app.get("/docs-specs/profile.json")
+async def get_profile_openapi():
+    """Lấy schema OpenAPI từ Profile service (Port 8003)"""
+    try:
+        response = await client.get(f"{SERVICE_URLS['profile']}/openapi.json")
+        return JSONResponse(content=response.json(), status_code=response.status_code)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/docs-specs/notification.json")
+async def get_notification_openapi():
+    """Lấy schema OpenAPI từ Notification service (Port 8004)"""
+    try:
+        response = await client.get(f"{SERVICE_URLS['notification']}/openapi.json")
+        return JSONResponse(content=response.json(), status_code=response.status_code)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
 # ===== HÀM PROXY VÀ ĐỊNH TUYẾN (Giữ nguyên) =====
 async def _proxy(request: Request, target_url: str):
     method = request.method
@@ -89,7 +113,15 @@ async def _proxy(request: Request, target_url: str):
             content=body,
             timeout=10.0
         )
-        return JSONResponse(content=r.json(), status_code=r.status_code)
+        # Forward raw content and headers from upstream so cookies (Set-Cookie)
+        # and other headers are preserved for the browser.
+        resp_headers = dict(r.headers)
+        # Remove hop-by-hop headers that should not be forwarded
+        for h in ["transfer-encoding", "content-encoding", "content-length", "connection"]:
+            resp_headers.pop(h, None)
+
+        media_type = r.headers.get("content-type")
+        return FastAPIResponse(content=r.content, status_code=r.status_code, headers=resp_headers, media_type=media_type)
     except httpx.ConnectError as e:
         return JSONResponse(content={"error": "Microservice không khả dụng"}, status_code=503)
     except Exception as e:
@@ -103,6 +135,18 @@ async def proxy_auth(request: Request, path: str):
 @app.api_route("/api/search/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_search(request: Request, path: str):
     target_url = f"{SERVICE_URLS['search']}/{path}"
+    return await _proxy(request, target_url)
+
+
+@app.api_route("/api/profile/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_profile(request: Request, path: str):
+    target_url = f"{SERVICE_URLS['profile']}/{path}"
+    return await _proxy(request, target_url)
+
+
+@app.api_route("/api/notify/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_notification(request: Request, path: str):
+    target_url = f"{SERVICE_URLS['notification']}/{path}"
     return await _proxy(request, target_url)
 
 @app.get("/")
