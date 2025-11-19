@@ -107,7 +107,8 @@ async def login_user(
                 "role": user["role"],
                 "is_verified": user["is_verified"],
                 "is_ban": user["is_ban"]
-            }
+            },
+            "token": access_token
         }
     except Exception as e:
         # Phân biệt lỗi HTTP đã ném
