@@ -1,6 +1,6 @@
 // Lấy dữ liệu nha sĩ đã chọn
 const dentist = JSON.parse(localStorage.getItem("selectedDentist"));
-
+console.log(dentist);
 if (!dentist) {
     document.body.innerHTML =
         "<div class='text-center mt-5'><h4>No dentist data found. Go back to <a href='find.html'>search</a>.</h4></div>";
@@ -11,7 +11,7 @@ if (!dentist) {
     document.getElementById("dentistClinic").innerHTML =
         `<strong>Clinic:</strong> ${dentist.clinic}`;
     document.getElementById("dentistCity").innerHTML =
-        `<i class='bi bi-geo-alt'></i> ${dentist.city}`;
+        `<i class='bi bi-geo-alt'></i> ${dentist.address}`;
     document.getElementById("dentistSpecialty").innerHTML =
         `<strong>Specialty:</strong> ${dentist.specialty}`;
     document.getElementById("dentistService").innerHTML =

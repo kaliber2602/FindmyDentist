@@ -96,3 +96,38 @@ body {
   font-weight: 700;
   margin: 0;
 }
+
+.pagination .page-item .page-link {
+  color: var(--dark-blue);
+  border-radius: 0.25rem;
+  margin: 0 2px;
+  border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--light-blue);
+  border-color: var(--light-blue);
+  color: var(--white);
+  font-weight: 600;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.pagination .page-item .page-link:hover {
+  background-color: var(--soft-blue);
+  color: var(--light-blue);
+}
+
+.pagination .page-item.active .page-link:hover {
+  background-color: var(--medium-blue);
+  color: var(--white);
+}
+
+/* (MỚI) Style cho thanh tìm kiếm */
+#searchContainer input {
+  max-width: 400px;
+}

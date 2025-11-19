@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from .._shared.db import get_db_connection
-from .._shared.security import get_current_user, TokenPayload
+import logging
+from services._shared.db import get_db_connection
+from services._shared.security import get_current_user, TokenPayload
 import aiomysql
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/me", summary="Get current user profile", description="Return profile data for the logged-in user")
@@ -24,20 +26,38 @@ async def get_my_profile(
 
             # Optionally fetch extra data for customers/dentists
             if user.get('role') == 'CUSTOMER':
-                await cursor.execute("SELECT is_verified FROM Customers WHERE user_id = %s", (user['user_id'],))
-                cust = await cursor.fetchone()
-                if cust:
-                    user['is_verified'] = cust.get('is_verified')
+                try:
+                    await cursor.execute("SELECT is_verified FROM Customers WHERE user_id = %s", (user['user_id'],))
+                    cust = await cursor.fetchone()
+                    if cust:
+                        # cust may be dict or tuple depending on cursor type
+                        if isinstance(cust, dict):
+                            user['is_verified'] = cust.get('is_verified', False)
+                        else:
+                            user['is_verified'] = cust[0] if len(cust) > 0 else False
+                except Exception:
+                    # Column may not exist in older schemas; default to False
+                    logger.warning("Customers.is_verified column not found or query failed for user %s", user.get('user_id'))
+                    user['is_verified'] = False
             elif user.get('role') == 'DENTIST':
-                await cursor.execute("SELECT is_verified, clinic_name FROM Dentists WHERE user_id = %s", (user['user_id'],))
-                dent = await cursor.fetchone()
-                if dent:
-                    user.update(dent)
+                try:
+                    await cursor.execute("SELECT is_verified, clinic_name FROM Dentists WHERE user_id = %s", (user['user_id'],))
+                    dent = await cursor.fetchone()
+                    if dent:
+                        if isinstance(dent, dict):
+                            user.update(dent)
+                        else:
+                            # tuple: (is_verified, clinic_name)
+                            user['is_verified'] = dent[0] if len(dent) > 0 else False
+                            user['clinic_name'] = dent[1] if len(dent) > 1 else None
+                except Exception:
+                    logger.warning("Dentists.is_verified/clinic_name query failed for user %s", user.get('user_id'))
 
         return {"profile": user}
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Error in get_my_profile")
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
 
@@ -56,6 +76,7 @@ async def get_profile_by_id(user_id: str, conn: aiomysql.Connection = Depends(ge
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Error in get_profile_by_id")
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
 
@@ -99,6 +120,7 @@ async def get_my_appointments(
 
         return {"appointments": rows}
     except Exception as e:
+        logger.exception("Error in get_my_appointments")
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
 
@@ -132,6 +154,7 @@ async def get_my_history(
 
         return {"history": rows}
     except Exception as e:
+        logger.exception("Error in get_my_history")
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
 
@@ -159,20 +182,27 @@ async def update_my_profile(
             try:
                 async with httpx.AsyncClient() as client:
                     if email_addr:
-                        await client.post("http://localhost:8004/send", json={
-                            "to": email_addr,
-                            "subject": "Thông báo: Thay đổi thông tin tài khoản",
-                            "body": "Thông tin tài khoản của bạn đã được cập nhật thành công."
-                        }, timeout=5.0)
+                        try:
+                            # Send to notification service (port 8005)
+                            await client.post("http://localhost:8005/send", json={
+                                "to": email_addr,
+                                "subject": "Thông báo: Thay đổi thông tin tài khoản",
+                                "body": "Thông tin tài khoản của bạn đã được cập nhật thành công."
+                            }, timeout=5.0)
+                        except Exception as exc:
+                            # Log but don't fail the profile update
+                            import logging
+                            logging.getLogger(__name__).exception("Failed to notify on profile update for %s", email_addr)
             except Exception:
                 pass
 
             return {"message": "Profile updated"}
     except Exception as e:
+        logger.exception("Error in update_my_profile")
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
 
-from .._shared.security import verify_password, get_password_hash
+from services._shared.security import verify_password, get_password_hash
 import httpx
 
 @router.post("/me/change-password", summary="Change password", description="Change current user's password by providing old and new password")
@@ -211,11 +241,15 @@ async def change_my_password(
             try:
                 if email_addr:
                     async with httpx.AsyncClient() as client:
-                        await client.post("http://localhost:8004/send", json={
-                            "to": email_addr,
-                            "subject": "Thông báo: Mật khẩu đã được thay đổi",
-                            "body": "Mật khẩu tài khoản của bạn đã được thay đổi. Nếu không phải bạn, hãy liên hệ hỗ trợ."
-                        }, timeout=5.0)
+                        try:
+                            await client.post("http://localhost:8005/send", json={
+                                "to": email_addr,
+                                "subject": "Thông báo: Mật khẩu đã được thay đổi",
+                                "body": "Mật khẩu tài khoản của bạn đã được thay đổi. Nếu không phải bạn, hãy liên hệ hỗ trợ."
+                            }, timeout=5.0)
+                        except Exception as exc:
+                            import logging
+                            logging.getLogger(__name__).exception("Failed to notify on password change for %s", email_addr)
             except Exception:
                 pass
 
@@ -223,5 +257,6 @@ async def change_my_password(
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("Error in change_my_password")
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
     

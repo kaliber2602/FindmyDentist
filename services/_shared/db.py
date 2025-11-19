@@ -9,13 +9,10 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     DB_DATABASE: str
-    # Ignore extra env vars (like SMTP_*) so Settings() won't raise when .env
-    # contains unrelated keys. Use `model_config` only (Pydantic v2).
     model_config = {
         "extra": "ignore",
         "env_file": os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
     }
-
 settings = Settings()
 
 # 2. Tạo hàm cung cấp kết nối CSDL (Dùng aiomysql)

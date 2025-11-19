@@ -1,3 +1,4 @@
+# File: /api-gateway/main.py
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, HTMLResponse, Response as FastAPIResponse
@@ -7,22 +8,18 @@ import logging
 import os 
 from fastapi.templating import Jinja2Templates 
 
-# --- Cấu hình (Mới) ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-# ===== (QUAN TRỌNG) TẮT SWAGGER TỰ ĐỘNG =====
 app = FastAPI(
     title="FindMyDentist API Gateway",
-    docs_url=None,  # Tắt /docs mặc định
-    redoc_url=None  # Tắt /redoc mặc định
+    docs_url=None,  
+    redoc_url=None 
 )
-# =================================================
 
-# --- CORS: cho phép các origin cụ thể để credentials hoạt động ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost", "http://127.0.0.1", "http://localhost:8000"],
@@ -31,37 +28,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Ánh xạ Service (Giữ nguyên) ---
 SERVICE_URLS = {
     "auth": "http://localhost:8001",
     "search": "http://localhost:8002",
-    "profile": "http://localhost:8003",
-    "notification": "http://localhost:8004",
+    "admin": "http://localhost:8003",
+    "profile": "http://localhost:8004",
+    "notification": "http://localhost:8005",
+    "appointment": "http://localhost:8006",
+    "clinic_management": "http://localhost:8007",
+    "dentist_management": "http://localhost:8008",
 }
 client = httpx.AsyncClient()
 
-# ===== (MỚI) ENDPOINT HIỂN THỊ SWAGGER TỔNG =====
-# Chúng ta chiếm lại đường dẫn /docs bằng trang tùy chỉnh
 @app.get("/docs", response_class=HTMLResponse)
 async def get_unified_swagger_ui(request: Request):
     """
     Hiển thị trang HTML Swagger UI tùy chỉnh (có dropdown).
     """
-    # Đảm bảo bạn đã tạo file /api-gateway/templates/swagger_ui.html
     return templates.TemplateResponse("swagger_ui.html", {
         "request": request,
         "service_urls": [
             {"name": "Auth Service", "url": "/docs-specs/auth.json"},
             {"name": "Search Service", "url": "/docs-specs/search.json"},
+            {"name": "Admin Service", "url": "/docs-specs/admin.json"}, # <-- Đã thêm
             {"name": "Profile Service", "url": "/docs-specs/profile.json"},
             {"name": "Notification Service", "url": "/docs-specs/notification.json"},
+            {"name": "Appointment Service", "url": "/docs-specs/appointment.json"},
+            {"name": "Clinic Management Service", "url": "/docs-specs/clinic_management.json"},
+            {"name": "Dentist Management Service", "url": "/docs-specs/dentist_management.json"},
+
         ]
     })
 
-# ===== (MỚI) CÁC ENDPOINT FETCHER (LẤY TÀI LIỆU) =====
 @app.get("/docs-specs/auth.json")
 async def get_auth_openapi():
-    """Lấy schema OpenAPI từ Auth service (Port 8001)"""
     try:
         response = await client.get(f"{SERVICE_URLS['auth']}/openapi.json")
         return JSONResponse(content=response.json(), status_code=response.status_code)
@@ -70,17 +70,25 @@ async def get_auth_openapi():
 
 @app.get("/docs-specs/search.json")
 async def get_search_openapi():
-    """Lấy schema OpenAPI từ Search service (Port 8002)"""
     try:
         response = await client.get(f"{SERVICE_URLS['search']}/openapi.json")
         return JSONResponse(content=response.json(), status_code=response.status_code)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
-
+# (MỚI) Thêm fetcher cho Admin Service
+@app.get("/docs-specs/admin.json")
+async def get_admin_openapi():
+    """Lấy schema OpenAPI từ Admin service (Port 8003)"""
+    try:
+        response = await client.get(f"{SERVICE_URLS['admin']}/openapi.json")
+        return JSONResponse(content=response.json(), status_code=response.status_code)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+    
 @app.get("/docs-specs/profile.json")
 async def get_profile_openapi():
-    """Lấy schema OpenAPI từ Profile service (Port 8003)"""
+    """Lấy schema OpenAPI từ Profile service (Port 8004)"""
     try:
         response = await client.get(f"{SERVICE_URLS['profile']}/openapi.json")
         return JSONResponse(content=response.json(), status_code=response.status_code)
@@ -90,15 +98,25 @@ async def get_profile_openapi():
 
 @app.get("/docs-specs/notification.json")
 async def get_notification_openapi():
-    """Lấy schema OpenAPI từ Notification service (Port 8004)"""
+    """Lấy schema OpenAPI từ Notification service (Port 8005)"""
     try:
         response = await client.get(f"{SERVICE_URLS['notification']}/openapi.json")
         return JSONResponse(content=response.json(), status_code=response.status_code)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+@app.get("/docs-specs/appointment.json")
+async def get_appointment_openapi():
+    """Lấy schema OpenAPI từ Appointment service (Port 8003)"""
+    try:
+        response = await client.get(f"{SERVICE_URLS['appointment']}/openapi.json")
+        return JSONResponse(content=response.json(), status_code=response.status_code)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+    
 
 
-# ===== HÀM PROXY VÀ ĐỊNH TUYẾN (Giữ nguyên) =====
+# ===== HÀM PROXY VÀ ĐỊNH TUYẾN =====
 async def _proxy(request: Request, target_url: str):
     method = request.method
     body = await request.body()
@@ -137,6 +155,10 @@ async def proxy_search(request: Request, path: str):
     target_url = f"{SERVICE_URLS['search']}/{path}"
     return await _proxy(request, target_url)
 
+@app.api_route("/api/admin/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_admin(request: Request, path: str):
+    target_url = f"{SERVICE_URLS['admin']}/{path}"
+    return await _proxy(request, target_url)
 
 @app.api_route("/api/profile/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def proxy_profile(request: Request, path: str):
@@ -149,10 +171,22 @@ async def proxy_notification(request: Request, path: str):
     target_url = f"{SERVICE_URLS['notification']}/{path}"
     return await _proxy(request, target_url)
 
+
+@app.api_route("/api/appointment/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_appointment(request: Request, path: str):
+    target_url = f"{SERVICE_URLS['appointment']}/{path}"
+    return await _proxy(request, target_url)
+
+@app.api_route("/api/dentist_management/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
+async def proxy_dentist_management(request: Request, path: str):
+    target_url = f"{SERVICE_URLS['dentist_management']}/{path}"
+    return await _proxy(request, target_url)
+
+
 @app.get("/")
 def read_root():
     return {"message": "API Gateway (FastAPI) đang chạy"}
 
 if __name__ == "__main__":
     logger.info("Khởi động API Gateway trên port 8000")
-    uvicorn.run(app, host="127.0.0.1", port=8000) # Đổi sang 127.0.0.1 cho dễ click
+    uvicorn.run(app, host="127.0.0.1", port=8000)
